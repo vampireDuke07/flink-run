@@ -3,7 +3,9 @@ package test;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.StatementSet;
+import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.types.Row;
 import util.FlinkUtils;
 
 public class a {
@@ -13,16 +15,37 @@ public class a {
         StreamTableEnvironment tEnv = FlinkUtils.gettEnv();
 
 
-        MySqlSource<Object> mySqlSource = MySqlSource.builder()
-                .hostname("")
-                .port(3306)
-                .databaseList("")
-                .tableList("")
-                .username("")
-                .password("")
-//                .deserializer(new StringDebeziumDeserializationSchema())
-                .build();
+//        MySqlSource<Object> mySqlSource = MySqlSource.builder()
+//                .hostname("")
+//                .port(3306)
+//                .databaseList("")
+//                .tableList("")
+//                .username("")
+//                .password("")
+////                .deserializer(new StringDebeziumDeserializationSchema())
+//                .build();
 
+        tEnv.executeSql("create table `product_brand` (\n" +
+                "   id BIGINT,\n" +
+                "   zid BIGINT,\n" +
+                "   title STRING,\n" +
+                "   sort BIGINT,\n" +
+                "   gmt_modified TIMESTAMP,\n" +
+                "   gmt_create TIMESTAMP," +
+                "   primary key (`id`) NOT ENFORCED\n" +
+                ")with(\n" +
+                "            'connector' = 'mysql-cdc',\n" +
+                "            'hostname' = '10.49.0.86',\n" +
+                "            'port' = '3306',\n" +
+                "            'username' = 'bdp',\n" +
+                "            'password' = 'akd_bdp',\n" +
+                "            'database-name' = 'dev_erp',\n" +
+                "            'table-name' = 'product_brand_bak',\n" +
+                "            'debezium.snapshot.mode' = 'initial',\n" +
+                "            'debezium.snapshot.locking.mode' = 'none')");
+
+        Table table = tEnv.sqlQuery("select * from product_brand");
+        tEnv.toRetractStream(table, Row.class).print();
 
 
         env.execute();
