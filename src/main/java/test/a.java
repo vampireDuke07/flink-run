@@ -35,12 +35,12 @@ public class a {
                 "   primary key (`id`) NOT ENFORCED\n" +
                 ")with(\n" +
                 "            'connector' = 'mysql-cdc',\n" +
-                "            'hostname' = '10.49.0.86',\n" +
+                "            'hostname' = '8.134.35.221',\n" +
                 "            'port' = '3306',\n" +
-                "            'username' = 'bdp',\n" +
-                "            'password' = 'akd_bdp',\n" +
-                "            'database-name' = 'dev_erp',\n" +
-                "            'table-name' = 'product_brand_bak',\n" +
+                "            'username' = 'root',\n" +
+                "            'password' = 'root',\n" +
+                "            'database-name' = 'test',\n" +
+                "            'table-name' = 'product_brand',\n" +
                 "            'debezium.snapshot.mode' = 'initial',\n" +
                 "            'debezium.snapshot.locking.mode' = 'none')");
 
@@ -48,6 +48,6 @@ public class a {
         tEnv.toRetractStream(table, Row.class).print();
 
 
-        env.execute();
+        env.execute("test a");
     }
 }
