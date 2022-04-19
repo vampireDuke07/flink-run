@@ -1,6 +1,5 @@
 package app;
 
-import com.alibaba.ververica.cdc.debezium.StringDebeziumDeserializationSchema;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.shaded.org.apache.kafka.connect.data.Struct;
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
