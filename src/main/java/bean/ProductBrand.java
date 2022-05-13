@@ -5,13 +5,13 @@ public class ProductBrand {
     private int zid;
     private int sort;
     private String title;
-    private long gmtCreate;
-    private long gmtModified;
+    private String gmtCreate;
+    private String gmtModified;
 
     public ProductBrand() {
     }
 
-    public ProductBrand(int id, int zid, int sort, String title, long gmtCreate, long gmtModified) {
+    public ProductBrand(int id, int zid, int sort, String title, String gmtCreate, String gmtModified) {
         this.id = id;
         this.zid = zid;
         this.sort = sort;
@@ -52,19 +52,19 @@ public class ProductBrand {
         this.title = title;
     }
 
-    public long getGmtCreate() {
+    public String getGmtCreate() {
         return gmtCreate;
     }
 
-    public void setGmtCreate(long gmtCreate) {
+    public void setGmtCreate(String gmtCreate) {
         this.gmtCreate = gmtCreate;
     }
 
-    public long getGmtModified() {
+    public String getGmtModified() {
         return gmtModified;
     }
 
-    public void setGmtModified(long gmtModified) {
+    public void setGmtModified(String gmtModified) {
         this.gmtModified = gmtModified;
     }
 
