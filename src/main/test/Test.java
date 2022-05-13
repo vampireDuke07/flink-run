@@ -17,4 +17,24 @@ public class Test {
                 .build();
         System.out.println(mySqlSource instanceof ResultTypeQueryable);
     }
+
+    @org.junit.Test
+    public void test1() {
+        String s = "lbw";
+        int s2 = 0;
+
+        String check = check(s);
+        String check1 = check(null);
+        Integer check2 = check(s2);
+
+        System.out.println(check2);
+    }
+
+    public <T> T check(T value) {
+        if (null == value) {
+            return (T) "value is null";
+        } else {
+            return value;
+        }
+    }
 }
