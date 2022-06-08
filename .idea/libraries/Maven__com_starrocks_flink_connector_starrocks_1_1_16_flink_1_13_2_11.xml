@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.starrocks:flink-connector-starrocks:1.1.16_flink-1.13_2.11">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/starrocks/flink-connector-starrocks/1.1.16_flink-1.13_2.11/flink-connector-starrocks-1.1.16_flink-1.13_2.11.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/starrocks/flink-connector-starrocks/1.1.16_flink-1.13_2.11/flink-connector-starrocks-1.1.16_flink-1.13_2.11-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/starrocks/flink-connector-starrocks/1.1.16_flink-1.13_2.11/flink-connector-starrocks-1.1.16_flink-1.13_2.11-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

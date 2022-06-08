@@ -10,20 +10,21 @@ import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsIni
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
+import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
+import javax.annotation.Nullable;
+import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class Flink2Kafka {
     public static void main(String[] args) throws Exception {
+        //flink执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        //ckp容灾机制
-        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(
-                100, // 尝试重启的次数
-                Time.of(60, TimeUnit.SECONDS) // 延时
-        ));
         //ckp频率
         env.enableCheckpointing(30 * 1000L);
         //ckp精准一次
@@ -36,21 +37,46 @@ public class Flink2Kafka {
         env.getCheckpointConfig().setTolerableCheckpointFailureNumber(100);
         //ckp并存数
         env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
-        env.setParallelism(1);
-        EnvironmentSettings settings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
-        StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
-        SimpleStringSchema simpleStringSchema = new SimpleStringSchema();
-        KafkaSource build = KafkaSource.builder()
-                .setBootstrapServers("10.49.0.143:9092")
-                .setTopics("ods_order_mws1")
-                .setGroupId("test")
+        //ckp容灾机制
+        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(
+                100, // 尝试重启的次数
+                Time.of(60, TimeUnit.SECONDS) // 延时
+        ));
+
+
+        KafkaSource<String> source = KafkaSource.<String>builder()
+                .setBootstrapServers(":9092")
+                .setTopics("")
+                .setGroupId("test-w")
                 .setStartingOffsets(OffsetsInitializer.earliest())
-                .setValueOnlyDeserializer((DeserializationSchema) simpleStringSchema)
+                .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();
 
-        DataStreamSource test = env.fromSource(build, WatermarkStrategy.noWatermarks(), "test");
+        DataStreamSource<String> dataStreamSource = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
 
-        test.print();
+
+        Properties properties = new Properties();
+        properties.setProperty("bootstrap.servers", ":9092");
+        // kafka broker的超时时间默认是15分钟，而producer的超时时间默认是1h，不允许producer的超时时间大于broker的超时时间，需将两边调整为一致或小于
+        properties.setProperty("transaction.timeout.ms","300000");
+
+        KafkaSerializationSchema<String> serializationSchema = new KafkaSerializationSchema<String>() {
+            @Override
+            public org.apache.kafka.clients.producer.ProducerRecord<byte[], byte[]> serialize(String element, @Nullable Long timestamp) {
+                return new ProducerRecord<>(
+                        "dev_rebalance_sink",  // target topic
+                        element.getBytes(StandardCharsets.UTF_8)); // record contents
+            }
+        };
+
+        FlinkKafkaProducer<String> myProducer = new FlinkKafkaProducer<>(
+                "dev_rebalance_sink",   // target topic
+                serializationSchema,    // serialization schema
+                properties,             // producer config
+                FlinkKafkaProducer.Semantic.EXACTLY_ONCE); // fault-tolerance
+
+        dataStreamSource.addSink(myProducer);
+
 
         env.execute();
 
